@@ -1,0 +1,28 @@
+Statistic,Value
+N observations,2996
+N election pairs,6
+N unique divisions,164
+N unique parties (std),83
+,
+Vote share (t),
+  Mean,0.0315
+  Median,0.0181
+  Std Dev,0.0582
+  Min,0.0007
+  Max,0.6552
+ ,
+Above 4% threshold,0.168
+Contests next election,0.446
+  ,
+Next vote share (conditional),
+  Mean ,0.0339
+  Median ,0.0228
+  Std Dev ,0.0430
+   ,
+Vote share change (conditional),
+  Mean  ,0.0002
+  Median  ,0.0001
+    ,
+"Funding amount ($, imputed)",
+  Mean (above threshold),"23,049"
+  Median (above threshold),"14,013"
