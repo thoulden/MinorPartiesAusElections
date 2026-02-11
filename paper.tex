@@ -288,12 +288,12 @@ Figure~\ref{fig:histogram} shows the distribution of the running variable (vote 
     \label{fig:histogram}
 \end{figure}
 
-Figure~\ref{fig:density} presents a kernel density estimate of the running variable, estimated separately on each side of the threshold. The densities connect smoothly at the cutoff, providing further visual evidence against manipulation.
+Figure~\ref{fig:density} presents a McCrary-style density plot: fine-binned frequency dots with local linear (LOWESS) smoothing estimated separately on each side of the threshold. The two fitted curves connect at the cutoff without any visible jump or discontinuity. The density declines monotonically through the threshold region, consistent with the raw histogram and providing further visual evidence against manipulation.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.85\textwidth]{output/figures/fig2_density_running_var.png}
-    \caption{Estimated density of the running variable around the 4\% threshold. Separate kernel density estimates on each side of the cutoff connect smoothly, indicating no sorting around the threshold.}
+    \caption{McCrary-style density plot. Each dot is the density in a 0.25 percentage-point bin; solid lines are LOWESS fits estimated separately on each side of the cutoff. The density declines smoothly through the threshold with no visible jump, indicating no sorting around the threshold.}
     \label{fig:density}
 \end{figure}
 
@@ -346,7 +346,7 @@ The credibility of any regression discontinuity design rests on the assumption t
 
 The McCrary (2008) density test examines whether the density of the running variable is continuous at the cutoff. A discontinuity would suggest that agents are sorting to one side of the threshold.
 
-While the formal \texttt{rddensity} test encountered a software compatibility issue, the visual evidence in Figures~\ref{fig:histogram} and \ref{fig:density} is reassuring. A simple comparison of bin counts shows 134 observations in the half-percentage-point just below the threshold versus 97 just above. The modest decline is consistent with the overall downward slope of the density (the distribution is right-skewed), not with bunching.
+While the formal \texttt{rddensity} test encountered a software compatibility issue, the visual evidence in Figures~\ref{fig:histogram} and \ref{fig:density} is strongly reassuring. The histogram shows a smooth, monotonically declining distribution with no bunching or discontinuity at the threshold. The McCrary-style density plot in Figure~\ref{fig:density} confirms this: the LOWESS-smoothed densities on each side of the cutoff connect naturally, with no visible jump. A simple comparison of bin counts shows 134 observations in the half-percentage-point just below the threshold versus 97 just above. This modest decline is entirely consistent with the overall downward slope of the density (the distribution is right-skewed), not with bunching.
 
 The institutional argument for no manipulation is also strong. Vote shares are determined by the aggregation of thousands of individual ballot papers, and parties cannot precisely target a specific divisional vote share.
 

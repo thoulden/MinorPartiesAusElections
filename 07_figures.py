@@ -103,37 +103,46 @@ def rdplot_manual(df, y_col, x_col, title, ylabel, outpath, n_bins=20, subset=No
 
 
 def plot_density(df, outpath):
-    """Density plot of running variable near threshold."""
+    """McCrary-style density plot: fine-binned histogram with local linear
+    smoothing on each side of the cutoff, avoiding KDE boundary bias."""
     fig, ax = plt.subplots(figsize=(8, 5))
 
-    running = df["running_var"] * 100
+    running = df["running_var"].to_numpy() * 100  # percentage points
     running = running[(running >= -4) & (running <= 8)]
 
-    # Use kernel density estimation
-    from scipy.stats import gaussian_kde
+    # Fine bins for the histogram (used for the scatter points)
+    bin_width = 0.25  # 0.25pp bins
+    bin_edges = np.arange(-4, 8 + bin_width, bin_width)
+    bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+    counts, _ = np.histogram(running, bins=bin_edges)
+    # Convert counts to density (counts / n / bin_width)
+    density = counts / (len(running) * bin_width)
 
-    # Separate left and right
-    left = running[running < 0]
-    right = running[running >= 0]
+    # Plot bin scatter separately for left and right
+    left_mask = bin_centers < 0
+    right_mask = bin_centers >= 0
+    ax.scatter(bin_centers[left_mask], density[left_mask],
+               color="steelblue", s=25, zorder=3, alpha=0.8)
+    ax.scatter(bin_centers[right_mask], density[right_mask],
+               color="steelblue", s=25, zorder=3, alpha=0.8)
 
-    x_grid_l = np.linspace(-4, 0, 200)
-    x_grid_r = np.linspace(0, 8, 200)
+    # Local linear (LOWESS-style) smooth on each side
+    from statsmodels.nonparametric.smoothers_lowess import lowess
 
-    if len(left) > 10:
-        kde_l = gaussian_kde(left, bw_method=0.3)
-        ax.plot(x_grid_l, kde_l(x_grid_l), color="steelblue", linewidth=2)
-        ax.fill_between(x_grid_l, kde_l(x_grid_l), alpha=0.2, color="steelblue")
-
-    if len(right) > 10:
-        kde_r = gaussian_kde(right, bw_method=0.3)
-        ax.plot(x_grid_r, kde_r(x_grid_r), color="steelblue", linewidth=2)
-        ax.fill_between(x_grid_r, kde_r(x_grid_r), alpha=0.2, color="steelblue")
+    for mask, side_label in [(left_mask, "left"), (right_mask, "right")]:
+        x_pts = bin_centers[mask]
+        y_pts = density[mask]
+        if len(x_pts) > 4:
+            smoothed = lowess(y_pts, x_pts, frac=0.4, return_sorted=True)
+            ax.plot(smoothed[:, 0], smoothed[:, 1], color="darkblue",
+                    linewidth=2, zorder=4)
 
     ax.axvline(x=0, color="red", linewidth=1.5, linestyle="--", label="4% threshold")
     ax.set_xlabel("Vote share minus 4% (percentage points)")
     ax.set_ylabel("Density")
-    ax.set_title("Density of Minor Party Vote Shares Around the 4% Threshold")
+    ax.set_title("McCrary Density Plot: Vote Shares Around the 4% Threshold")
     ax.legend()
+    ax.set_xlim(-4, 8)
 
     plt.tight_layout()
     fig.savefig(outpath, dpi=150, bbox_inches="tight")
